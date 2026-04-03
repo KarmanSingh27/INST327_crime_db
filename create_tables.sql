@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS incident_fact;
+DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS crimes;
+DROP TABLE IF EXISTS police_districts;
+DROP TABLE IF EXISTS agencies;
+DROP TABLE IF EXISTS time_dim;
