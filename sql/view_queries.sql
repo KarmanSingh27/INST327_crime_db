@@ -14,8 +14,8 @@ FROM incidents i
 JOIN time_dim t ON i.time_id = t.time_id
 GROUP BY t.incident_hour;
 
-SELECT cr.crime_name2, COUNT(*) AS crime_amount
+SELECT cr.crime_name2, COUNT(*) AS crime_frequency
 FROM specific_incidents si
 JOIN crimes cr ON si.offence_code = cr.offence_code
 GROUP BY cr.crime_name2
-ORDER BY crime_amount DESC;
+ORDER BY crime_freq DESC;
