@@ -16,12 +16,12 @@ INSERT INTO addresses (
     city_id
 )
 SELECT DISTINCT
-    r.block_address,
-    r.address_number,
-    r.street_prefix,
-    r.street_name,
-    r.street_suffix,
-    r.street_type,
+    NULLIF(TRIM(r.block_address), ''),
+    CAST(NULLIF(TRIM(r.address_number), '') AS UNSIGNED),
+    NULLIF(TRIM(r.street_prefix), ''),
+    NULLIF(TRIM(r.street_name), ''),
+    NULLIF(TRIM(r.street_suffix), ''),
+    NULLIF(TRIM(r.street_type), ''),
     c.city_id
 FROM raw_data r
 JOIN cities c
@@ -64,16 +64,20 @@ INSERT INTO time_tbl (
     incident_weekday
 )
 SELECT DISTINCT
-    start_date_time,
-    end_date_time,
-    YEAR(start_date_time),
-    MONTH(start_date_time),
-    DAY(start_date_time),
-    HOUR(start_date_time),
-    DAYNAME(start_date_time)
+    STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i'),
+    STR_TO_DATE(NULLIF(TRIM(end_date_time), ''), '%c/%e/%Y %H:%i'),
+
+    YEAR(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i')),
+    MONTH(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i')),
+    DAY(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i')),
+    HOUR(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i')),
+    DAYNAME(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i'))
+
 FROM raw_data
-WHERE start_date_time IS NOT NULL
-  AND YEAR(start_date_time) BETWEEN 2017 AND 2020;
+
+WHERE NULLIF(TRIM(start_date_time), '') IS NOT NULL
+  AND STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i') IS NOT NULL
+  AND YEAR(STR_TO_DATE(NULLIF(TRIM(start_date_time), ''), '%c/%e/%Y %H:%i')) BETWEEN 2017 AND 2020;
 
 INSERT INTO incidents (
     incident_id,
@@ -82,27 +86,33 @@ INSERT INTO incidents (
     time_id
 )
 SELECT DISTINCT
-    r.incident_id,
-    r.cr_number,
-    r.police_district_number,
+    CAST(NULLIF(TRIM(r.incident_id), '') AS UNSIGNED),
+    NULLIF(TRIM(r.cr_number), ''),
+    NULLIF(TRIM(r.police_district_number), ''),
     t.time_id
 FROM raw_data r
 JOIN time_tbl t
-    ON r.start_date_time = t.start_date_time
-   AND (r.end_date_time <=> t.end_date_time)
-WHERE r.incident_id IS NOT NULL
-  AND YEAR(r.start_date_time) BETWEEN 2017 AND 2020;
+    ON STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i') = t.start_date_time
+   AND (
+        STR_TO_DATE(NULLIF(TRIM(r.end_date_time), ''), '%c/%e/%Y %H:%i') <=> t.end_date_time
+   )
+WHERE NULLIF(TRIM(r.incident_id), '') IS NOT NULL
+  AND STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i') IS NOT NULL
+  AND YEAR(STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i')) BETWEEN 2017 AND 2020;
 
 INSERT INTO victims (
     incident_id,
     victim_count
 )
 SELECT DISTINCT
-    incident_id,
-    victims
-FROM raw_data
-WHERE incident_id IS NOT NULL
-  AND YEAR(start_date_time) BETWEEN 2017 AND 2020;
+    CAST(NULLIF(TRIM(r.incident_id), '') AS UNSIGNED),
+    CAST(NULLIF(TRIM(r.victims), '') AS UNSIGNED)
+FROM raw_data r
+JOIN incidents i
+    ON CAST(NULLIF(TRIM(r.incident_id), '') AS UNSIGNED) = i.incident_id
+WHERE NULLIF(TRIM(r.incident_id), '') IS NOT NULL
+  AND STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i') IS NOT NULL
+  AND YEAR(STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i')) BETWEEN 2017 AND 2020;
 
 INSERT INTO specific_incidents (
     incident_id,
@@ -111,26 +121,27 @@ INSERT INTO specific_incidents (
     offence_code
 )
 SELECT DISTINCT
-    r.incident_id,
+    CAST(NULLIF(TRIM(r.incident_id), '') AS UNSIGNED),
     a.address_id,
     v.victim_id,
-    r.offence_code
+    NULLIF(TRIM(r.offence_code), '')
 FROM raw_data r
 JOIN cities c
-    ON r.city = c.city_name
-   AND r.state = c.state
-   AND (r.zip_code <=> c.zip_code)
-   AND (r.place <=> c.place)
+    ON NULLIF(TRIM(r.city), '') = c.city_name
+   AND NULLIF(TRIM(r.state), '') = c.state
+   AND (NULLIF(TRIM(r.zip_code), '') <=> c.zip_code)
+   AND (NULLIF(TRIM(r.place), '') <=> c.place)
 JOIN addresses a
-    ON (r.block_address <=> a.block_address)
-   AND (r.address_number <=> a.address_number)
-   AND (r.street_prefix <=> a.street_prefix)
-   AND (r.street_name <=> a.street_name)
-   AND (r.street_suffix <=> a.street_suffix)
-   AND (r.street_type <=> a.street_type)
+    ON (NULLIF(TRIM(r.block_address), '') <=> a.block_address)
+   AND (CAST(NULLIF(TRIM(r.address_number), '') AS UNSIGNED) <=> a.address_number)
+   AND (NULLIF(TRIM(r.street_prefix), '') <=> a.street_prefix)
+   AND (NULLIF(TRIM(r.street_name), '') <=> a.street_name)
+   AND (NULLIF(TRIM(r.street_suffix), '') <=> a.street_suffix)
+   AND (NULLIF(TRIM(r.street_type), '') <=> a.street_type)
    AND c.city_id = a.city_id
 JOIN victims v
-    ON r.incident_id = v.incident_id
-WHERE r.incident_id IS NOT NULL
-  AND r.offence_code IS NOT NULL
-  AND YEAR(r.start_date_time) BETWEEN 2017 AND 2020;
+    ON CAST(NULLIF(TRIM(r.incident_id), '') AS UNSIGNED) = v.incident_id
+WHERE NULLIF(TRIM(r.incident_id), '') IS NOT NULL
+  AND NULLIF(TRIM(r.offence_code), '') IS NOT NULL
+  AND STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i') IS NOT NULL
+  AND YEAR(STR_TO_DATE(NULLIF(TRIM(r.start_date_time), ''), '%c/%e/%Y %H:%i')) BETWEEN 2017 AND 2020;

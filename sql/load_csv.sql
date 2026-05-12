@@ -2,7 +2,7 @@ USE montgomery_crime_db;
 
 SET GLOBAL local_infile = 1;
 
-LOAD DATA LOCAL INFILE '#NAME OF CLEANED CSV FILE PATH HERE'
+LOAD DATA LOCAL INFILE '/Users/karmansingh/INST327_crime_db/dataset/Montgomery County Crime  REVISEDfebcleanedfull (1).csv'
 INTO TABLE raw_data
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'

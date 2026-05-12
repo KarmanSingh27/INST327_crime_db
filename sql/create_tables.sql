@@ -11,27 +11,27 @@ DROP TABLE IF EXISTS cities;
 DROP TABLE IF EXISTS raw_data;
 
 CREATE TABLE raw_data (
-    incident_id BIGINT,
-    offence_code INT,
-    cr_number BIGINT,
-    victims INT,
-    crime_name1 VARCHAR(100),
-    crime_name2 VARCHAR(150),
-    crime_name3 VARCHAR(150),
-    police_district_name VARCHAR(100),
+    incident_id VARCHAR(50),
+    offence_code VARCHAR(50),
+    cr_number VARCHAR(50),
+    victims VARCHAR(50),
+    crime_name1 VARCHAR(255),
+    crime_name2 VARCHAR(255),
+    crime_name3 VARCHAR(255),
+    police_district_name VARCHAR(255),
     block_address VARCHAR(255),
     city VARCHAR(100),
-    state CHAR(2),
-    zip_code VARCHAR(10),
-    place VARCHAR(150),
-    address_number INT,
-    street_prefix VARCHAR(20),
-    street_name VARCHAR(100),
-    street_suffix VARCHAR(20),
-    street_type VARCHAR(20),
-    start_date_time DATETIME,
-    end_date_time DATETIME,
-    police_district_number VARCHAR(10)
+    state VARCHAR(50),
+    zip_code VARCHAR(50),
+    place VARCHAR(255),
+    address_number VARCHAR(50),
+    street_prefix VARCHAR(50),
+    street_name VARCHAR(255),
+    street_suffix VARCHAR(50),
+    street_type VARCHAR(50),
+    start_date_time VARCHAR(100),
+    end_date_time VARCHAR(100),
+    police_district_number VARCHAR(50)
 );
 
 CREATE TABLE cities (
